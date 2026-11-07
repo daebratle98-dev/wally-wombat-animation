@@ -11,34 +11,51 @@ if (!API_KEY) {
 
 const agents = [
   {
-    name: "research",
-    instructions: `You are a science fact-checker for funny
-English YouTube Shorts. Choose one surprising, verifiable
-animal fact. Distinguish established facts from hypotheses.
-Return a concise fact brief with sources to verify.`
-  },
-  {
-    name: "script",
-    instructions: `You are a comedy scriptwriter.
-Use the fact brief to write a funny, accurate English
-45-second YouTube Short script with a strong hook,
-voiceover, and five timed scenes. Avoid unsupported claims.`
-  },
-  {
     name: "director",
-    instructions: `You are a 2D animation director.
-Convert the script into a detailed 9:16 SVG animation plan.
-Specify character positions, layering, expressions, timing,
-and smooth motion. Avoid clipped limbs and obscured faces.`
+    instructions: `You are an expert 2D animation director.
+
+Turn the supplied English YouTube Shorts script into a
+detailed 45-second animation storyboard.
+
+Requirements:
+- Vertical 9:16 video, 1080x1920.
+- Expressive cartoon wombat character.
+- Smooth, clearly visible character movements.
+- Five scenes with exact start and end times.
+- Describe backgrounds, poses, facial expressions,
+  camera movements, and transitions.
+- Specify foreground/background layering.
+- Prevent clipped limbs, hidden hands, and objects
+  covering the character's face.
+- Keep the animation visually engaging throughout.
+
+Return a detailed storyboard that an SVG animation
+developer can implement.`
   },
   {
     name: "developer",
-    instructions: `You are an SVG animation developer.
-Generate a complete self-contained HTML animation for
-the full 45-second vertical Short. Use deterministic
-setProgress(t), where t ranges from 0 to 1.
-Do not use external images, fonts, or JavaScript libraries.
-Return ONLY the complete HTML code, no markdown fences.`
+    instructions: `You are an expert SVG animation developer.
+
+Build a complete, self-contained HTML animation
+from the supplied storyboard.
+
+Requirements:
+- 1080x1920 vertical SVG canvas.
+- Full 45-second animation.
+- A recognizable, expressive cartoon wombat.
+- Smooth character movement, not static slides.
+- Animated arms, legs, eyes, mouth, and body.
+- Clear foreground/background layering.
+- No clipped limbs or unwanted shadows.
+- No external libraries, images, or fonts.
+- Provide a global function setProgress(t).
+- t is a normalized value between 0 and 1.
+- The scene must render correctly at any t.
+- Use SVG groups and transforms for animation.
+- Include automatic browser playback for preview.
+
+Return ONLY a complete HTML document.
+Do not include markdown fences or explanations.`
   }
 ];
 
@@ -74,7 +91,7 @@ async function askGemini(instructions, input) {
           ],
           generationConfig: {
             temperature: 0.7,
-            maxOutputTokens: 8192
+            maxOutputTokens: 16384
           }
         }),
         signal: AbortSignal.timeout(120000)
@@ -126,12 +143,18 @@ async function askGemini(instructions, input) {
 }
 
 async function main() {
-  const topic = process.env.SHORT_TOPIC ||
-    "Why wombats produce cube-shaped poop";
+  const script = await fs.readFile("script.txt", "utf8");
+
+  if (!script.trim()) {
+    throw new Error("script.txt is empty");
+  }
 
   await fs.mkdir("agent-output", { recursive: true });
 
-  let result = `Create a science Short about: ${topic}`;
+  console.log("Loaded existing script.txt");
+  console.log("Skipping research and script agents.");
+
+  let result = script;
 
   for (const agent of agents) {
     console.log(`Running agent: ${agent.name}`);
@@ -139,7 +162,6 @@ async function main() {
     result = await askGemini(agent.instructions, result);
 
     const filename = `agent-output/${agent.name}.txt`;
-
     await fs.writeFile(filename, result, "utf8");
 
     console.log(`Saved ${filename}`);
@@ -162,7 +184,7 @@ async function main() {
     "utf8"
   );
 
-  console.log("Agent pipeline completed.");
+  console.log("Director and developer completed.");
 }
 
 main().catch(error => {
