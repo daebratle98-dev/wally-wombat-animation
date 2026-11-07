@@ -1,0 +1,294 @@
+# 2D Animation Production Storyboard: The Minecraft Poop Machine
+
+---
+
+## Technical Specifications
+* **Resolution:** 1080 × 1920 px (Vertical 9:16)
+* **Frame Rate:** 60 fps (target 30/60 fps vector tweens via CSS/GreenSock/SMIL)
+* **Canvas Safe Zone:** Keep primary actions within `X: 80 to 1000`, `Y: 220 to 1650` (to avoid YouTube Shorts UI overlaps: top title, bottom caption box, and right-hand interaction rail).
+* **Color Palette:**
+  * Outback Earth: `#D97736` (Dusty Terracotta), `#E5C388` (Warm Sand), `#7A5C43` (Deep Earth)
+  * Character (Wombat): `#8D6B4F` (Fur Base), `#6B4D36` (Shadow), `#F2DDD0` (Muzzle/Inner Ear), `#1E1B18` (Nose/Eyes)
+  * Graphic Highlights: `#4CAF50` (Pixel Green), `#E63946` (Stamp Red), `#F4A261` (Flexible Tissue), `#2A9D8F` (Stiff Tissue), `#FFD166` (Gold/Trophy)
+
+---
+
+## Scene 1 (0:00 – 0:09) | The Hook
+
+### Audio
+* **Voiceover:** *"Wombats are the only animals on Earth that poop in literal cubes—dropping up to a hundred geometric bricks a day. And before you ask: no, they do not have a square butt."*
+* **SFX:** Bright cartoon pop $\rightarrow$ 8-bit retro video game drop $\rightarrow$ Heavy comical "THUD" $\rightarrow$ Record scratch/squeak on "no square butt".
+
+---
+
+### Layout & Composition
+* **Background:** Stylized minimalist Australian outback. Warm sand dunes under a soft yellow gradient sky.
+* **Character Position:** Centered horizontally (`X: 540`), resting on a sand dune at `Y: 1200`.
+
+```
++-----------------------------+
+| [Sky: Soft Yellow Gradient] |
+|                             |
+|          ( O   O )          |
+|         (   (..)  )  <-- Cute Wombat
+|          \  ===  /          |
+|           /     \           |
+|         [ ] <-- Cube Drops  |
+|   ______/_/_____\______     |
+|  /     Sand Dune       \    |
++-----------------------------+
+```
+
+---
+
+### Layer Hierarchy (Back to Front)
+1. **Layer 0 (z: 10):** Background sky & distant gradient hills (`#F7E1D7` to `#E5C388`).
+2. **Layer 1 (z: 20):** Midground sand dune ridge.
+3. **Layer 2 (z: 30):** Wombat body, ears, stubby back legs.
+4. **Layer 3 (z: 40):** Wombat front paws (resting visible against belly, no clipping).
+5. **Layer 4 (z: 50):** 3D-angled pixel poop cube (`#5A3825` with 8-bit pixel texture edge).
+6. **Layer 5 (z: 60):** Comic text pop-up ("THUD!") and dynamic dust puffs.
+
+---
+
+### Action & Animation Beats
+* **0:00 – 0:02:** Camera rapid-zooms from full-shot (`scale: 0.8`) to medium close-up (`scale: 1.15`). The wombat blinks innocently with giant glossy anime pupils and a twitching pink nose.
+* **0:02 – 0:04:** Wombat hops up 40px with an arc. Mid-air, a pixelated brown cube drops straight down to `Y: 1450`. Upon impact, trigger a screen shake (amplitude: 12px, duration: 180ms) and pop-up text **"THUD!"** with vector dust clouds flying left and right.
+* **0:04 – 0:07:** Poop counter UI rolls up like an odometer above the wombat's head: `01... 24... 68... 100/DAY!` with confetti particles.
+* **0:07 – 0:09:** On *"no, they do not have a square butt"*, the wombat pivots 90° clockwise, showing a perfectly rounded, chubby cartoon posterior. The wombat turns its head back over its shoulder toward the camera, smirking while wagging an index paw in a "no-no" gesture.
+
+---
+
+### Camera & Transitions
+* Dynamic zoom-in at `0:00`. Quick horizontal whip-pan right at `0:09` to transition into Scene 2.
+
+---
+
+## Scene 2 (0:09 – 0:18) | The Sphincter Myth
+
+### Audio
+* **Voiceover:** *"Their anuses are completely round. The actual geometry happens deep inside the final 8 to 17 percent of their intestines."*
+* **SFX:** Blueprint slide whistle $\rightarrow$ Heavy mechanical "STAMP" thwack $\rightarrow$ Digital scan beep $\rightarrow$ Pulsing liquid gurgle.
+
+---
+
+### Layout & Composition
+* **Background:** Dark technical blueprint grid (`#1A2B3C`) with glowing cyan measuring lines.
+* **Center Subject:** Cross-section anatomical vector diagram of the rear digestive canal (`X: 540`, `Y: 850`).
+
+```
++-----------------------------+
+| [Blueprint Grid: #1A2B3C]   |
+|                             |
+|      /---------------\      |
+|     |  Intestine      |     |
+|     |  [8-17% Glow]   |     |
+|      \-------O-------/      |
+|              |              |
+|        (( (  O  ) ))        |
+|        Circular Exit        |
+|     +-----------------+     |
+|     | NOT A MINECRAFT |     |
+|     |       MOD       |     |
+|     +-----------------+     |
++-----------------------------+
+```
+
+---
+
+### Layer Hierarchy
+1. **Layer 0 (z: 10):** Blueprint grid background with animated scrolling grid lines.
+2. **Layer 1 (z: 20):** Cross-section intestinal tract silhouette in translucent white (`opacity: 0.25`).
+3. **Layer 2 (z: 30):** Animated food mass/chyme path entering from top left.
+4. **Layer 3 (z: 40):** Glowing outline of sphincter exit (circular vector target with dynamic radius callout `r = 12mm`).
+5. **Layer 4 (z: 50):** Giant red rubber stamp graphic: **"NOT A MINECRAFT MOD"**.
+6. **Layer 5 (z: 60):** Bracket callout vector highlighting the last 15% with label: *"Final 8–17%"*.
+
+---
+
+### Action & Animation Beats
+* **0:09 – 0:12:** Blueprint rolls in. A vector iris/aperture opens smoothly to reveal a clean, circular pink cartoon sphincter ring labeled **"100% CIRCULAR"** with pointing arrows.
+* **0:12 – 0:14:** A massive angled rubber-ink stamp slams down at `rotation: -12deg` reading **"NOT A MINECRAFT MOD"** with red ink splatter particles (`#E63946`).
+* **0:14 – 0:18:** The camera smoothly tracks backward and tilts upward along the intestinal canal. The lower circular sphincter dims to 50% opacity. The final section of the colon lights up in neon yellow/cyan pulse lines. Neon percentage counters tick up dynamically: `0%... 8%... 17%` next to an animated bracket marker.
+
+---
+
+### Camera & Transitions
+* Snap cut into blueprint. Smooth upward vertical camera pan (`Y: 1200` to `Y: 700`). Seamless zoom-into-gut morph transition into Scene 3.
+
+---
+
+## Scene 3 (0:18 – 0:27) | The Intestinal Squeezer
+
+### Audio
+* **Voiceover:** *"Biophysicists actually won an Ig Nobel Prize for figuring this out! The wombat's gut has two stiff zones and two flexible zones. As their food dries over a two-week digestive journey, rhythmic squeezing stamps the feces into two-centimeter blocks."*
+* **SFX:** Fanfare brass snippet $\rightarrow$ Hydraulic press motor hum $\rightarrow$ Rhythm: *Squeeze-clack... Squeeze-clack...* $\rightarrow$ Ding/Chime!
+
+---
+
+### Layout & Composition
+* **Background:** Clean laboratory clean-room pattern (soft grey/white diagonal stripes).
+* **Center Subject:** Gut cross-section styled like a high-tech hydraulic trash compactor (`X: 540`, `Y: 960`).
+
+```
++-----------------------------+
+|   [ Ig Nobel Trophy ]       |
+|          \ O /              |
+|                             |
+|      STIFF ZONE (Teal)      |
+|      ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼       |
+|  F [                ] F     |
+|  L [     [CUBE]     ] L     |
+|  E [                ] E     |
+|  X   ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ X     |
+|      STIFF ZONE (Teal)      |
+|                             |
+|     <--- 2.0 cm --->        |
++-----------------------------+
+```
+
+---
+
+### Layer Hierarchy
+1. **Layer 0 (z: 10):** Clean lab background with floating math formulas and physics vectors.
+2. **Layer 1 (z: 20):** Golden Ig Nobel Trophy asset (sliding in from top right).
+3. **Layer 2 (z: 30):** Outer intestinal walls:
+   * Top & Bottom: Rigid Teal plates (`#2A9D8F`) labeled *"STIFF"*.
+   * Left & Right: Wavy Coral elastomeric walls (`#F4A261`) labeled *"FLEXIBLE"*.
+4. **Layer 3 (z: 40):** Organic slurry transforming gradually from round blob into sharp cube.
+5. **Layer 4 (z: 50):** Measurement overlay calipers snapping onto the cube displaying `"2.0 cm"`.
+
+---
+
+### Action & Animation Beats
+* **0:18 – 0:21:** An ornate gold trophy with a caricature bust slides in rapidly from top-right to `X: 820`, `Y: 350`, spinning 360° with sparkle stars. A headline ribbon reads: **"IG NOBEL PRIZE: PHYSICS"**.
+* **0:21 – 0:24:** Gut cross-section activates. Top and bottom teal sections remain completely flat and rigid, moving vertically inward like a vise clamp (`Y: -30px` stroke). Side coral walls bow outwards elastically (`scaleX: 1.35`), then snap inwards rhythmically (BPM: 120 sync).
+* **0:24 – 0:27:** An irregularly shaped brown organic mass dries up (color shifts from muddy green-brown `#4D4229` to matte clay brown `#6B4D36`), while groove lines sharpen into crisp 90-degree corner vertices. Graphic dimension line arrows ping outward: `|◀ 2 cm ▶|`.
+
+---
+
+### Camera & Transitions
+* Fixed scientific camera framing. Sudden lateral slide-wipe from right to left simulates rapid page turning into Scene 4.
+
+---
+
+## Scene 4 (0:27 – 0:37) | The "Why?"
+
+### Audio
+* **Voiceover:** *"Why? Wombats have terrible eyesight and mark territory by smell on elevated rocks. Leading theory? Cubes don’t roll off! Or… it’s just an accidental byproduct of extreme water reabsorption in dry environments."*
+* **SFX:** Cartoon whistling desert wind $\rightarrow$ Spherical "roll-roll-roll-splash" $\rightarrow$ Solid rock "clack" $\rightarrow$ Squeaky spectacles adjustment.
+
+---
+
+### Layout & Composition
+* **Background:** Harsh Australian arid plateau, bright desert sun (`#FFCC00`), steep angled boulder slope (`35° incline`).
+* **Character Position:** Wombat at upper ridge (`X: 350`, `Y: 700`) wearing thick, spiral-lens comic glasses.
+
+```
++-----------------------------+
+|        \   |   /            |
+|         ( SUN )             |
+|        /   |   \            |
+|                             |
+|    (@@_@@) <-- Blind Wombat |
+|    /|   |\                  |
+|   / |___| \                 |
+|  /     [=] [=]  <-- Cubes   |
+| /       \                   |
+|/  ROCK   \  (O) <-- Sphere  |
+|  INCLINE  \      Rolls Away |
++-----------------------------+
+```
+
+---
+
+### Layer Hierarchy
+1. **Layer 0 (z: 10):** Hot desert sky with heat-shimmer wave effect (`SVG feTurbulence filter`).
+2. **Layer 1 (z: 20):** Distant desert scrubland and flat mesas.
+3. **Layer 2 (z: 30):** Steep boulder edge angled at $35^\circ$ slicing diagonally across the screen.
+4. **Layer 3 (z: 40):** A round spherical droppings demonstration rolling down and falling off-screen.
+5. **Layer 4 (z: 50):** Stable poop cubes stacked like neat bricks on the rock summit.
+6. **Layer 5 (z: 60):** Wombat with oversized round spiral glasses, sniffing air with visible scent-wave vectors (`#A7C957`).
+
+---
+
+### Action & Animation Beats
+* **0:27 – 0:30:** Wombat crouches comically close to the rock, nose touching the surface, squinting through gigantic swirling milk-bottle glasses. Blue odor vapor trails (`#84A98C`) drift from the rocks into the wombat's nostrils.
+* **0:30 – 0:33:** Split physics experiment shown on the slope:
+  * Left side: A standard round rabbit-style pellet is placed on the slope; it immediately rolls down rapidly, tumbling off the screen edge into the void.
+  * Right side: Wombat places a cube poop. It lands flat on its face with a solid *clack* and halts instantly, refusing to budge.
+* **0:33 – 0:35:** Animated cartoon wind gusts (white curved swoosh vectors) blast past from left to right. The spherical elements fly away; the poop cube stays rock-solid.
+* **0:35 – 0:37:** Wombat looks at camera, drops glasses to the tip of its nose, shrugs front paws with a goofy "who knows?" expression while a sweat drop beads on its temple.
+
+---
+
+### Camera & Transitions
+* Camera follows wind path moving right $\rightarrow$ Fast vertical split-screen slide separator wipes into Scene 5.
+
+---
+
+## Scene 5 (0:37 – 0:45) | The Punchline
+
+### Audio
+* **Voiceover:** *"Either way: humans spend thousands on 3D printers, while wombats internalize the industrial revolution completely for free. Subscribe for more weird nature!"*
+* **SFX:** Electric sizzle/printer glitching beep-error $\rightarrow$ Triumphant factory steam whistle $\rightarrow$ Energetic pop bell for Subscribe.
+
+---
+
+### Layout & Composition
+* **Screen Split:** Horizontal 50/50 split across `Y: 960`.
+  * **Top Panel:** Human workshop with an expensive, tangled, smoking 3D printer.
+  * **Bottom Panel:** Australian pasture with the smug cartoon wombat sitting proudly beside a neat pyramid of poop cubes.
+
+```
++-----------------------------+
+| TOP: 3D PRINTER DISASTER    |
+|   [ $$$ ERROR! ]            |
+|    |===[SPAGHETTI]===|      |
+|       (Smoke / Sparks)      |
+|-----------------------------|
+| BOTTOM: NATURE'S FACTORY    |
+|         ( ^ _ ^ )           |
+|        /   W   \  Wombat    |
+|       /         \           |
+|      [#] [#] [#]  Pyramid   |
+|   [ SUBSCRIBE BUTTON ]      |
++-----------------------------+
+```
+
+---
+
+### Layer Hierarchy
+1. **Layer 0 (z: 10):** 
+   * Top half background: Industrial steel workshop grey (`#2B2D42`).
+   * Bottom half background: Sunny Australian outback green/tan (`#A8DADC`).
+2. **Layer 1 (z: 20):** Dividing graphic caution-tape border at `Y: 960`.
+3. **Layer 2 (z: 30 - Top):** High-end 3D printer model with flashing red warning screen: `ERROR: FILAMENT JAM ($3,500)`.
+4. **Layer 3 (z: 40 - Top):** Tangled mess of extruded plastic filament "spaghetti" spilling over the print bed.
+5. **Layer 4 (z: 30 - Bottom):** Wombat sitting triumphantly like an Egyptian Pharaoh beside a perfectly stacked 4-tier pyramid of poop bricks.
+6. **Layer 5 (z: 50):** Text Banner sliding into upper midground: **"100 BLOCKS A DAY. $0."**
+7. **Layer 6 (z: 60 - Bottom):** Bright YouTube Red **[SUBSCRIBE]** button with animated clicking cursor hand.
+
+---
+
+### Action & Animation Beats
+* **0:37 – 0:40:** Top frame shows the 3D printer head vibrating violently; filament jams into an explosive curly cloud of red plastic wires, emitting black cartoon smoke clouds and red flashing warning lights.
+* **0:40 – 0:42:** Bottom frame shows the wombat cross its arms, closing its eyes with supreme smug satisfaction. A tiny factory smokestack puff playfully appears above its head like a hat.
+* **0:42 – 0:45:** Banner **"100 BLOCKS A DAY"** stamps across the mid-border. A pill-shaped YouTube **SUBSCRIBE** button drops to `X: 540`, `Y: 1720`. A cartoon mouse cursor clicks it; it transitions from Red (`#FF0000`) to Grey (`#606060`) with ringing notification bell animations. Wombat winks and waves both front paws directly at viewer as screen irises out.
+
+---
+
+### Camera & Transitions
+* Split screen remains locked to contrast the dual action. At `0:44.5`, an Iris-close transition centers on the wombat's winking eye, finishing on a solid black frame at `0:45.0`.
+
+---
+
+## SVG Animation Asset & Rigging Guide
+
+| Asset ID | Elements & Node Breakdown | Motion Type | Critical Layering Constraints |
+| :--- | :--- | :--- | :--- |
+| `wombat_rig` | Head, blink lids, snout, ears, torso, 2 forepaws, 2 hind legs, round tail bulb. | Skeletal / FK bone transform or nested `<g>` rotations. | Forepaws must remain above torso `z-index` at all times; no edge clipping on safe bounds. |
+| `poop_cube` | Isometric vector cube with 3 visible faces (top, left, right) + subtle gradient shading. | TranslateY drop with scale squash & stretch (`1.0 -> 1.25x / 0.8y -> 1.0`). | Must land strictly above ground line; cast dynamic shadow ellipse underneath. |
+| `gut_compactor`| 2 flat stiff bar shapes + 2 bezier curved flex walls with anchor point morphing. | SVG Path Morph (`d` path tween via GreenSock MorphSVG or CSS `@keyframes`). | Coordinate centers must sync with incoming fecal mass transforms. |
+| `spec_glasses` | Thick black circular rims with animated spiral paths in lenses. | Alpha toggle + head-parented translation. | Must never obscure the mouth/jaw silhouette during dialogue. |
+| `printer_jam` | Frame, extruder carriage, tangled bezier spaghetti strands. | High-frequency jitter `translateX(±4px)`. | Spaghetti strands explode forward over printer chassis. |
