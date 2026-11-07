@@ -9,69 +9,38 @@ if (!API_KEY) {
   process.exit(1);
 }
 
-const agents = [
-  {
-    name: "director",
-    instructions: `You are an expert 2D animation director.
-
-Turn the supplied English YouTube Shorts script into a
-detailed 45-second animation storyboard.
-
-Requirements:
-- Vertical 9:16 video, 1080x1920.
-- Expressive cartoon wombat character.
-- Smooth, clearly visible character movements.
-- Five scenes with exact start and end times.
-- Describe backgrounds, poses, facial expressions,
-  camera movements, and transitions.
-- Specify foreground/background layering.
-- Prevent clipped limbs, hidden hands, and objects
-  covering the character's face.
-- Keep the animation visually engaging throughout.
-
-Return a detailed storyboard that an SVG animation
-developer can implement.`
-  },
-  {
-    name: "developer",
-    instructions: `You are an expert SVG animation developer.
-
-Build a complete, self-contained HTML animation
-from the supplied storyboard.
-
-Requirements:
-- 1080x1920 vertical SVG canvas.
-- Full 45-second animation.
-- A recognizable, expressive cartoon wombat.
-- Smooth character movement, not static slides.
-- Animated arms, legs, eyes, mouth, and body.
-- Clear foreground/background layering.
-- No clipped limbs or unwanted shadows.
-- No external libraries, images, or fonts.
-- Provide a global function setProgress(t).
-- t is a normalized value between 0 and 1.
-- The scene must render correctly at any t.
-- Use SVG groups and transforms for animation.
-- Include automatic browser playback for preview.
-
-Return ONLY a complete HTML document.
-Do not include markdown fences or explanations.`
-  }
-];
-
 const sleep = ms =>
   new Promise(resolve => setTimeout(resolve, ms));
 
-async function askGemini(instructions, input) {
+async function askGemini(input) {
   const url =
     `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent`;
 
-  const maxAttempts = 5;
+  const instructions = `
+You are an expert SVG animation developer.
 
-  for (let attempt = 0; attempt < maxAttempts; attempt++) {
-    console.log(
-      `Gemini request: attempt ${attempt + 1}/${maxAttempts}`
-    );
+Create a complete self-contained HTML document
+implementing the supplied animation storyboard.
+
+Requirements:
+- Full 45-second animated YouTube Short.
+- Vertical SVG viewBox="0 0 1080 1920".
+- Recognizable cartoon wombat with articulated body parts.
+- Visible, smooth character movements throughout.
+- Animated expressions, arms, legs, and props.
+- Correct foreground/background layering.
+- Avoid clipped limbs and unwanted shadows.
+- Implement global window.setProgress(t).
+- t is a normalized value between 0 and 1.
+- Every frame must be deterministic.
+- No external images, libraries, or fonts.
+- Include automatic playback for browser preview.
+
+Return ONLY complete HTML, without markdown fences.
+`;
+
+  for (let attempt = 0; attempt < 5; attempt++) {
+    console.log(`Attempt ${attempt + 1}/5`);
 
     let response;
 
@@ -90,82 +59,75 @@ async function askGemini(instructions, input) {
             { role: "user", parts: [{ text: input }] }
           ],
           generationConfig: {
-            temperature: 0.7,
+            temperature: 0.5,
             maxOutputTokens: 16384
           }
         }),
         signal: AbortSignal.timeout(120000)
       });
     } catch (error) {
-      if (attempt === maxAttempts - 1) {
-        throw error;
-      }
+      if (attempt === 4) throw error;
 
       const wait = 15000 * (attempt + 1);
-      console.log(`Connection issue. Waiting ${wait / 1000}s.`);
+      console.log(`Connection error. Waiting ${wait / 1000}s`);
       await sleep(wait);
       continue;
     }
 
     if (response.ok) {
       const data = await response.json();
-
-      const result = (data.candidates?.[0]?.content?.parts || [])
+      const text = (data.candidates?.[0]?.content?.parts || [])
         .map(part => part.text || "")
         .join("");
 
-      if (!result.trim()) {
+      if (!text.trim()) {
         throw new Error("Gemini returned an empty response");
       }
 
-      return result.trim();
+      return text.trim();
     }
 
     const errorText = await response.text();
-    const retryable = [429, 500, 502, 503, 504]
-      .includes(response.status);
 
-    if (!retryable || attempt === maxAttempts - 1) {
+    if (
+      ![429, 500, 502, 503, 504].includes(response.status) ||
+      attempt === 4
+    ) {
       throw new Error(
         `Gemini HTTP ${response.status}: ${errorText}`
       );
     }
 
     const wait = 15000 * (attempt + 1);
-
     console.log(
-      `Gemini HTTP ${response.status}. ` +
-      `Retrying in ${wait / 1000} seconds.`
+      `Gemini HTTP ${response.status}. Waiting ${wait / 1000}s`
     );
-
     await sleep(wait);
   }
 }
 
 async function main() {
-  const script = await fs.readFile("script.txt", "utf8");
+  const storyboard = await fs.readFile(
+    "director.txt",
+    "utf8"
+  );
 
-  if (!script.trim()) {
-    throw new Error("script.txt is empty");
+  if (!storyboard.trim()) {
+    throw new Error("director.txt is empty");
   }
 
   await fs.mkdir("agent-output", { recursive: true });
 
-  console.log("Loaded existing script.txt");
-  console.log("Skipping research and script agents.");
+  console.log("Loaded director.txt");
+  console.log("Running only Agent 4 - SVG developer");
 
-  let result = script;
+  const result = await askGemini(storyboard);
 
-  for (const agent of agents) {
-    console.log(`Running agent: ${agent.name}`);
-
-    result = await askGemini(agent.instructions, result);
-
-    const filename = `agent-output/${agent.name}.txt`;
-    await fs.writeFile(filename, result, "utf8");
-
-    console.log(`Saved ${filename}`);
-  }
+  await fs.writeFile(
+    "agent-output/developer.txt",
+    result,
+    "utf8"
+  );
 
   const html = result
     .replace(/^```(?:html)?\s*/i, "")
@@ -174,7 +136,7 @@ async function main() {
   if (!/<html[\s>]/i.test(html) ||
       !/setProgress\s*\(/.test(html)) {
     throw new Error(
-      "Developer output is not a valid animation HTML prototype"
+      "Generated output is not a valid HTML animation prototype"
     );
   }
 
@@ -184,7 +146,7 @@ async function main() {
     "utf8"
   );
 
-  console.log("Director and developer completed.");
+  console.log("Agent 4 completed successfully.");
 }
 
 main().catch(error => {
