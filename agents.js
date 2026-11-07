@@ -17,26 +17,31 @@ async function askGemini(input) {
     `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent`;
 
   const instructions = `
-You are an expert SVG animation developer.
+You are an expert 2D SVG character animator.
 
-Create a complete self-contained HTML document
-implementing the supplied animation storyboard.
+Create ONE complete, self-contained HTML document
+for the FIRST FIVE SECONDS of the supplied storyboard.
 
-Requirements:
-- Full 45-second animated YouTube Short.
-- Vertical SVG viewBox="0 0 1080 1920".
-- Recognizable cartoon wombat with articulated body parts.
-- Visible, smooth character movements throughout.
-- Animated expressions, arms, legs, and props.
+Animation requirements:
+- 1080x1920 vertical SVG viewBox.
+- Exactly 5 seconds of animation.
+- One expressive cartoon wombat character.
+- Character must visibly MOVE, not remain static.
+- Animate head, arms, eyes, and body.
+- Use SVG groups with transforms.
 - Correct foreground/background layering.
-- Avoid clipped limbs and unwanted shadows.
-- Implement global window.setProgress(t).
-- t is a normalized value between 0 and 1.
+- Keep all limbs visible inside the frame.
+- Use simple clean vector shapes.
+- No external libraries, images, or fonts.
+- Implement window.setProgress(t).
+- t is between 0 and 1 for this 5-second scene.
 - Every frame must be deterministic.
-- No external images, libraries, or fonts.
-- Include automatic playback for browser preview.
+- Include automatic browser preview playback.
 
-Return ONLY complete HTML, without markdown fences.
+Keep the HTML concise, ideally under 12000 characters.
+
+Return ONLY complete HTML code.
+Do not use markdown fences.
 `;
 
   for (let attempt = 0; attempt < 5; attempt++) {
@@ -59,8 +64,8 @@ Return ONLY complete HTML, without markdown fences.
             { role: "user", parts: [{ text: input }] }
           ],
           generationConfig: {
-            temperature: 0.5,
-            maxOutputTokens: 16384
+            temperature: 0.4,
+            maxOutputTokens: 8192
           }
         }),
         signal: AbortSignal.timeout(120000)
@@ -69,22 +74,23 @@ Return ONLY complete HTML, without markdown fences.
       if (attempt === 4) throw error;
 
       const wait = 15000 * (attempt + 1);
-      console.log(`Connection error. Waiting ${wait / 1000}s`);
+      console.log(`Connection issue. Waiting ${wait / 1000}s`);
       await sleep(wait);
       continue;
     }
 
     if (response.ok) {
       const data = await response.json();
-      const text = (data.candidates?.[0]?.content?.parts || [])
+
+      const result = (data.candidates?.[0]?.content?.parts || [])
         .map(part => part.text || "")
         .join("");
 
-      if (!text.trim()) {
+      if (!result.trim()) {
         throw new Error("Gemini returned an empty response");
       }
 
-      return text.trim();
+      return result.trim();
     }
 
     const errorText = await response.text();
@@ -102,6 +108,7 @@ Return ONLY complete HTML, without markdown fences.
     console.log(
       `Gemini HTTP ${response.status}. Waiting ${wait / 1000}s`
     );
+
     await sleep(wait);
   }
 }
@@ -118,8 +125,7 @@ async function main() {
 
   await fs.mkdir("agent-output", { recursive: true });
 
-  console.log("Loaded director.txt");
-  console.log("Running only Agent 4 - SVG developer");
+  console.log("Generating first 5-second SVG scene");
 
   const result = await askGemini(storyboard);
 
@@ -133,10 +139,13 @@ async function main() {
     .replace(/^```(?:html)?\s*/i, "")
     .replace(/\s*```$/, "");
 
-  if (!/<html[\s>]/i.test(html) ||
-      !/setProgress\s*\(/.test(html)) {
+  if (
+    !/<html[\s>]/i.test(html) ||
+    !/<\/html>/i.test(html) ||
+    !/setProgress\s*\(/.test(html)
+  ) {
     throw new Error(
-      "Generated output is not a valid HTML animation prototype"
+      "Generated scene is incomplete or missing setProgress"
     );
   }
 
@@ -146,7 +155,7 @@ async function main() {
     "utf8"
   );
 
-  console.log("Agent 4 completed successfully.");
+  console.log("First 5-second scene generated.");
 }
 
 main().catch(error => {
