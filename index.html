@@ -238,7 +238,14 @@
             requestAnimationFrame(browserPlaybackLoop);
         }
 
-        requestAnimationFrame(browserPlaybackLoop);
+        // In render mode Puppeteer controls each frame through window.setProgress(t).
+        // In preview mode the browser plays the animation continuously.
+        const renderMode = new URLSearchParams(window.location.search).get('render') === '1';
+        window.setProgress = setProgress;
+        setProgress(0);
+        if (!renderMode) {
+            requestAnimationFrame(browserPlaybackLoop);
+        }
     </script>
 </body>
 </html>
