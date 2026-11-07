@@ -1,0 +1,38 @@
+
+name: Render Wally Animation
+
+on:
+  workflow_dispatch:
+
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Download repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Install FFmpeg
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg
+
+      - name: Render MP4
+        run: npm run render
+
+      - name: Save MP4 for download
+        uses: actions/upload-artifact@v4
+        with:
+          name: wally-scene1-video
+          path: output_scene1.mp4
+          if-no-files-found: error
+          retention-days: 7
