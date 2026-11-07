@@ -2,7 +2,7 @@
 const fs = require("node:fs/promises");
 
 const API_KEY = process.env.GEMINI_API_KEY;
-const MODEL = process.env.GEMINI_MODEL || "gemini-2.5-flash";
+const MODEL = process.env.GEMINI_MODEL || "gemini-3.8-flash";
 
 if (!API_KEY) {
   console.error("Missing GEMINI_API_KEY");
@@ -42,33 +42,57 @@ Return ONLY the complete HTML code, no markdown fences.`
   }
 ];
 
+const sleep = ms =>
+  new Promise(resolve => setTimeout(resolve, ms));
+
 async function askGemini(instructions, input) {
   const url =
     `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent`;
 
-  for (let attempt = 0; attempt < 3; attempt++) {
-    const response = await fetch(url, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-goog-api-key": API_KEY
-      },
-      body: JSON.stringify({
-        systemInstruction: {
-          parts: [{ text: instructions }]
+  const maxAttempts = 5;
+
+  for (let attempt = 0; attempt < maxAttempts; attempt++) {
+    console.log(
+      `Gemini request: attempt ${attempt + 1}/${maxAttempts}`
+    );
+
+    let response;
+
+    try {
+      response = await fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-goog-api-key": API_KEY
         },
-        contents: [
-          { role: "user", parts: [{ text: input }] }
-        ],
-        generationConfig: {
-          temperature: 0.7,
-          maxOutputTokens: 8192
-        }
-      })
-    });
+        body: JSON.stringify({
+          systemInstruction: {
+            parts: [{ text: instructions }]
+          },
+          contents: [
+            { role: "user", parts: [{ text: input }] }
+          ],
+          generationConfig: {
+            temperature: 0.7,
+            maxOutputTokens: 8192
+          }
+        }),
+        signal: AbortSignal.timeout(120000)
+      });
+    } catch (error) {
+      if (attempt === maxAttempts - 1) {
+        throw error;
+      }
+
+      const wait = 15000 * (attempt + 1);
+      console.log(`Connection issue. Waiting ${wait / 1000}s.`);
+      await sleep(wait);
+      continue;
+    }
 
     if (response.ok) {
       const data = await response.json();
+
       const result = (data.candidates?.[0]?.content?.parts || [])
         .map(part => part.text || "")
         .join("");
@@ -76,19 +100,28 @@ async function askGemini(instructions, input) {
       if (!result.trim()) {
         throw new Error("Gemini returned an empty response");
       }
+
       return result.trim();
     }
 
     const errorText = await response.text();
+    const retryable = [429, 500, 502, 503, 504]
+      .includes(response.status);
 
-    if (![429, 500, 502, 503, 504].includes(response.status) ||
-        attempt === 2) {
-      throw new Error(`Gemini HTTP ${response.status}: ${errorText}`);
+    if (!retryable || attempt === maxAttempts - 1) {
+      throw new Error(
+        `Gemini HTTP ${response.status}: ${errorText}`
+      );
     }
 
-    await new Promise(resolve =>
-      setTimeout(resolve, 2000 * (attempt + 1))
+    const wait = 15000 * (attempt + 1);
+
+    console.log(
+      `Gemini HTTP ${response.status}. ` +
+      `Retrying in ${wait / 1000} seconds.`
     );
+
+    await sleep(wait);
   }
 }
 
@@ -106,12 +139,13 @@ async function main() {
     result = await askGemini(agent.instructions, result);
 
     const filename = `agent-output/${agent.name}.txt`;
+
     await fs.writeFile(filename, result, "utf8");
 
     console.log(`Saved ${filename}`);
   }
 
-  let html = result
+  const html = result
     .replace(/^```(?:html)?\s*/i, "")
     .replace(/\s*```$/, "");
 
@@ -122,7 +156,12 @@ async function main() {
     );
   }
 
-  await fs.writeFile("agent-output/generated.html", html, "utf8");
+  await fs.writeFile(
+    "agent-output/generated.html",
+    html,
+    "utf8"
+  );
+
   console.log("Agent pipeline completed.");
 }
 
